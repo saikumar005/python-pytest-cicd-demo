@@ -14,14 +14,11 @@ class CalculationRequest(BaseModel):
     b: float
 
 
-import os
-
 @app.get("/health")
 def health_check():
     """Health check endpoint."""
-    if os.getenv("SIMULATE_RUNTIME_CRASH") == "true":
-        raise HTTPException(status_code=500, detail="Runtime Container Crash: Database connection failed!")
     return {"status": "ok", "app": "python-testing"}
+
 
 
 
