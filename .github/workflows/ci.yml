@@ -1,18 +1,21 @@
-name: CI Pipeline
+name: CI/CD Pipeline to AWS EC2
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main ]
 
 jobs:
+  # ==========================================
+  # JOB 1: CONTINUOUS INTEGRATION (CI)
+  # ==========================================
   test:
-    name: Run Pytest Suite
+    name: Run Pytest Suite & Code Checks
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository Code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Set up Python 3.12
@@ -25,6 +28,47 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run Unit & Integration Tests
+      - name: Run Pytest Suite (Unit & Integration Tests)
         run: |
           pytest -v
+
+  # ==========================================
+  # JOB 2: CONTINUOUS DEPLOYMENT (CD)
+  # Runs ONLY if 'test' job completes successfully!
+  # ==========================================
+  deploy:
+    name: Deploy Container to AWS EC2
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: SSH into EC2 and Deploy Application
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            echo "1. Pulling latest code from GitHub main branch..."
+            if [ ! -d "python_testing" ]; then
+              git clone https://github.com/saikumar005/python-pytest-cicd-demo.git python_testing
+              cd python_testing
+            else
+              cd python_testing
+              git fetch origin main
+              git reset --hard origin/main
+            fi
+
+            echo "2. Building Docker Image..."
+            docker build -t fastapi-app:latest .
+
+            echo "3. Stopping and Removing old running container (if any)..."
+            docker stop fastapi-container || true
+            docker rm fastapi-container || true
+
+            echo "4. Running new Docker Container..."
+            docker run -d --name fastapi-container -p 8000:8000 --restart always fastapi-app:latest
+
+            echo "5. Verifying running container status..."
+            docker ps
