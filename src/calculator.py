@@ -1,7 +1,9 @@
 # calculator.py
 
 def add(a, b):
-    return a + b
+    # INTENTIONAL BUG FOR SCENARIO 2 DEMO: Breaks addition logic
+    return a + b + 999
+
 
 def subtract(a, b):
     return a - b
