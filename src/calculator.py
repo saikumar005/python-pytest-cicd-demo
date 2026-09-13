@@ -9,7 +9,10 @@ def subtract(a, b):
     return a - b
 
 def multiply(a, b):
+    # Main branch version: Logs multiplication operation
+    print(f"Multiplying {a} * {b}")
     return a * b
+
 
 def divide(a, b):
     if b == 0:
