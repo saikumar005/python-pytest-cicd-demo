@@ -1,5 +1,6 @@
-# src/main.py
-from fastapi import FastAPI, HTTPException
+# INTENTIONAL IMPORT ERROR FOR SCENARIO 3 DEMO: Non-existent package
+from fastapiii_broken_package import FastAPI
+
 from pydantic import BaseModel
 from src.calculator import add, subtract, multiply, divide
 
