@@ -7,6 +7,9 @@ WORKDIR /app
 # Prevent Python from writing .pyc files & enable unbuffered logging
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+# SCENARIO 5 DEMO: Simulates container runtime failure on live deployment
+ENV SIMULATE_RUNTIME_CRASH=true
+
 
 # Install dependencies first (leverages Docker layer caching)
 COPY requirements.txt .

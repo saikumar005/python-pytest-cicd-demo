@@ -1,5 +1,6 @@
-# INTENTIONAL IMPORT ERROR FOR SCENARIO 3 DEMO: Non-existent package
-from fastapiii_broken_package import FastAPI
+# src/main.py
+from fastapi import FastAPI, HTTPException
+
 
 from pydantic import BaseModel
 from src.calculator import add, subtract, multiply, divide
@@ -13,10 +14,15 @@ class CalculationRequest(BaseModel):
     b: float
 
 
+import os
+
 @app.get("/health")
 def health_check():
     """Health check endpoint."""
+    if os.getenv("SIMULATE_RUNTIME_CRASH") == "true":
+        raise HTTPException(status_code=500, detail="Runtime Container Crash: Database connection failed!")
     return {"status": "ok", "app": "python-testing"}
+
 
 
 @app.post("/calculate")
